@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 from PIL import Image
 import numpy as np
 import cv2
+from sklearn.cluster import KMeans
 
 
 def image_to_matrix(image_path):
@@ -72,8 +73,8 @@ for file in file_list:
     image_path = os.path.join(path, file)
     image_matrix = image_to_matrix(image_path)
 
-    print(file)
-    print("Image shape:", image_matrix.shape)
+    #print(file)
+    #print("Image shape:", image_matrix.shape)
     images.append(image_matrix)
 
 
@@ -88,7 +89,13 @@ images = np.array(images)
 #     plot_histogram(images[index], "RGB Histogram")
 
 histograms = generate_histograms(images)
+histograms_array = np.array(histograms).reshape(len(images), -1)
 
+
+# Choose k random histograms as initial centroids
+k = 5
+initial_centroids_indices = np.random.choice(len(histograms_array), k, replace=False)
+initial_centroids = histograms_array[initial_centroids_indices, :]
 
 
 
