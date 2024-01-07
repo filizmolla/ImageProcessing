@@ -13,6 +13,66 @@ import cv2
 from sklearn.cluster import KMeans
 
 
+class Cluster:
+    def __init__(self, label, centroid, centroid_indice):
+        self.histograms = None 
+        self.label = label 
+        self.centroid_hist = centroid
+        self.centroid_indice = centroid_indice
+        
+    def __repr__(self):
+        return f"Cluster {self.label}, center indice: {self.centroid_indice}: Centroid hist: [{self.centroid_hist[0]}...{self.centroid_hist[767]}]"
+        
+
+class KMeans: 
+    def __init__(self, all_histograms, k=5):
+        self.k = k
+        self.all_histograms = all_histograms 
+        self.clusters = [] 
+    
+    @staticmethod
+    def euclidian_distance(data_point_histogram, centroid_histogram):
+        data_point = np.array(data_point_histogram)
+        centroids = np.array(centroid_histogram)
+        
+        temp = data_point_histogram - centroid_histogram
+        distance = np.linalg.norm(temp)
+
+        return distance
+    
+    
+    
+    def fit(self, max_iterations=200 ):
+        initial_centroids_indices = [49, 6, 47, 40, 22] #np.random.choice(len(histograms_array), k, replace=False)
+        initial_centroids = self.all_histograms[initial_centroids_indices, :]
+        i = 0
+        for centroid_indice, centroid_hist in zip(initial_centroids_indices, initial_centroids):
+            cluster = Cluster(i, centroid=centroid_hist, centroid_indice=centroid_indice)
+            self.clusters.append(cluster)
+            # print(cluster)
+            i += 1
+        
+        #print(self.all_histograms[0])
+        #print(self.clusters[0].centroid_hist)
+        
+        
+        for i, data_point in enumerate(self.all_histograms):
+            distances = []
+            for j, cluster in enumerate(self.clusters):
+                distance = KMeans.euclidian_distance(self.all_histograms[i], self.clusters[j].centroid_hist)
+                distances.append(distance)
+                # print(f"{i}, {j}, {distance}")
+            # print(f"{i} {distances}")
+
+
+
+
+
+
+
+
+
+
 def image_to_matrix(image_path):
     img = Image.open(image_path)
     img_array = np.array(img)
@@ -94,9 +154,8 @@ histograms_array = np.array(histograms).reshape(len(images), -1)
 
 # Choose k random histograms as initial centroids
 k = 5
-initial_centroids_indices = np.random.choice(len(histograms_array), k, replace=False)
-initial_centroids = histograms_array[initial_centroids_indices, :]
-
+kmeans = KMeans(histograms_array)
+lables = kmeans.fit()
 
 
 
